@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>Router example</head>
+<body>
+
+<p>Try and replace me when the router runs!</p>
+
+<script src="../dist/router.umd.js"></script>
+<script>
+
+  router({
+    "/home": () => console.log("HOME PAGE"),
+
+    "/profile/:id/tab/:tabId": params =>
+      console.log(`Profile id: ${params.id}`),
+
+    "/profile/:id": params => {
+      console.log("PROFILE PAGE", params)
+    }
+  })
+
+  // How to bind the router to URL changes in the browser:
+
+  // 1. capture link clicks for links such as  <a href="#/profile/1">some text</a>
+  window.addEventListener(
+    "click",
+    function handleLink(e) {
+      if (!e.target.matches("a")) return
+      if (!e.target.href.matches(/^#/)) return
+      e.preventDefault()
+      location.hash = e.target.hash
+    },
+    false
+  )
+
+  // 2. monitor changes to window.location.hash,
+  // run the router when it changes
+  window.addEventListener(
+    "hashchange",
+    function(e) {
+      router.href(window.location.hash)
+    },
+    false
+  )
+
+</script>
+</body>
+</html>

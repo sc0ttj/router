@@ -1,0 +1,50 @@
+{
+	"name": "@scottjarvis/router",
+	"version": "1.0.0",
+	"description": "A simple isomorphic router.",
+	"author": "sc0ttj",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sc0ttj/router.git"
+	},
+	"homepage": "https://github.com/sc0ttj/router",
+	"main": "dist/router.js",
+	"module": "dist/router.es6.js",
+	"es2015": "dist/router.es6.js",
+	"main:umd": "dist/router.umd.js",
+	"browser": "dist/router.umd.js",
+	"unpkg": "dist/router.umd.js",
+	"source": "src/router.js",
+	"scripts": {
+		"build": "microbundle --name router --compress",
+		"dev": "microbundle watch",
+		"test": "microbundle --name router --compress && echo 'Build complete... No tests yet!'"
+	},
+	"keywords": [
+		"router",
+		"routing",
+		"express",
+		"http",
+		"regex"
+	],
+	"files": [
+		"dist/router.js",
+		"dist/router.es6.js",
+		"dist/router.umd.js"
+	],
+	"dependencies": {},
+	"devDependencies": {
+		"microbundle": "^0.11.0"
+	},
+	"bugs": {
+		"url": "https://github.com/sc0ttj/router/issues"
+	},
+	"directories": {
+		"example": "examples"
+	},
+	"engines": {
+		"node": ">=8.0.0",
+		"npm": ">=6.0.0"
+	}
+}
