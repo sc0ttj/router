@@ -294,7 +294,7 @@ function router(routes, req, res, cb) {
             //     * application/octet-stream  - if given a Buffer
             var contentType = "text/html"
             var c = typeof content
-            if (c === "object" || c === "array") {
+            if (c === "object" || c === "array" || c === "number") {
               contentType = "application/json"
               res.setHeader("Content-Length", c.length)
               //   * auto pretty prints JSON output
@@ -352,17 +352,20 @@ function router(routes, req, res, cb) {
           // ...we call it before we modify any req/res properties
           wrappedMiddleware[0]
 
+          // on "end" we have finished receiving the body
+          // so lets get the whole body
+          var b = Buffer.concat(chunks).toString()
+
+          // if body parser already ran, there will be a req._body property, so
+          // if res._body exists, don't override re-parse req.body
+          if (!req._body) req.body = b
+
           // if the user did not use body-parser style middleware, we can
           // do some basic parsing for them anyway:
-          // - put the body chunks into one string
-          // - convert it into a JS object if possible
-          // - add the newly concatenated & parsed body to req.body
-          if (req.method !== "GET" || req.method !== "HEAD") {
-            // on "end" we have finished receiving the body
-            // so lets get the whole body
-            var b = Buffer.concat(chunks).toString()
-            req.body = b || {}
-
+          //  - put the body chunks into one string
+          //  - convert it into a JS object if possible
+          //  - add the newly concatenated & parsed body to req.body
+          if (!req._body && req.method !== "GET" && req.method !== "HEAD") {
             var ct = req.contentType
             // turn the body into a JS object, if possible
             if (ct === "application/x-www-form-urlencoded") {

@@ -293,19 +293,26 @@ Rebuild the bundles in `dist/` using this command: `npm run build`
 
 ## Related projects:
 
+### Alternative routers
+
 - [director](https://github.com/flatiron/director) - a fairly small, isomorphic URL router for JavaScript
 - [hasher](https://github.com/narirou/hasher) - Tiny hashchange router inspired by express.js & page.js 
 - [routie](https://github.com/jgallen23/routie) - a tiny javascript hash router
 - [trouter](https://github.com/lukeed/trouter/) - a fast, small-but-mighty, familiar router
 - [RouterRouter](https://github.com/jgarber623/RouterRouter) - a tiny JS router, extracted from Backbone's Router
 - [gcpantazis/router.js](https://gist.github.com/gcpantazis/5631831) - a very simple router based on BackboneJS Router
+
+### Alternative HTTP servers
+
 - [expressJS](https://expressjs.com/en/) - the most widely used JavaScript server, with routing "middleware"
+- [polka](https://github.com/lukeed/polka) - minimal, performant expressjs alternative (uses trouter)
 - [middy](https://github.com/middyjs/middy) - a popular router for AWS Lambda, uses a middleware-style API
 
 ## Acknowledgements
 
 - [Zetcode: javascript/http](http://zetcode.com/javascript/http/)
 - [@pyaesonekhant1234: differences-between-res-write-res-end-and-res-send](https://medium.com/@pyaesonekhant1234/differences-between-res-write-res-end-and-res-send-in-node-js-7c29e8e50654)
+- [Okta.com: Build and understand express middleware through examples](https://developer.okta.com/blog/2018/09/13/build-and-understand-express-middleware-through-examples)
 - [Towards Data Science: Building your own router for AWS Lambda](https://towardsdatascience.com/serverless-building-your-own-router-c2ca3071b2ec)
 - [vkhazin/aws-lambda-http-router](https://github.com/vkhazin/aws-lambda-http-router)
 
