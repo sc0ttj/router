@@ -92,19 +92,5 @@ function configurableMiddleware(opts) {
 // pass the middleware function to router.use(), with your options
 router.use(configurableMiddleware({ foo: "bar" }))
 
-//
-// -------------  @Todo Ad-hoc routing  examples   --------------
-//
-
-// OPTIONAL HTTP Router usage: Ad-hoc routing
-//
-// - like `journey`, `director` or `express`.
-// - pass a path as a string to route.get()
-// - the data from the path is available to the given function, in `params`
-//router.get("/foo/1", someFunc) // NOT READY!
-
-// where..
-var someFunc = params => {
-  // params contains data from the path passed to router.get(),
-  // returns some HTML, JSON, etc
-}
+// @TODO - enable middleware for a specific route pattern
+// router.use("/home", getRequestTime)

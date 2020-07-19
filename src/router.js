@@ -251,9 +251,27 @@ function router(routes, req, res, cb) {
       // - https://www.digitalocean.com/community/tutorials/nodejs-creating-your-own-express-middleware
       var wrappedMiddleware = []
       router.middleware.forEach(function(fn, i) {
-        var next = wrappedMiddleware[i + 1] || noop
+        // next() - throws the err, if not null, goes to next middleware
+        var next = function(err) {
+          if (typeof err === "undefined") {
+            try {
+              wrappedMiddleware[i + 1] || noop
+            } catch (e) {
+              next(e)
+            }
+          } else if (typeof err === "string") {
+            throw new Error(err)
+          } else if (typeof err === Error) {
+            throw err
+          }
+        }
+        // wrapped middleware - tries to run middleware, then runs next()
         var wrappedFn = function() {
-          return fn(req, res, next)
+          try {
+            fn(req, res, next)
+          } catch (e) {
+            next(e)
+          }
         }
         wrappedMiddleware.push(wrappedFn)
       })

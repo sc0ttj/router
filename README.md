@@ -112,7 +112,9 @@ See the full example in [examples/client-side-router.html](examples/client-side-
 
 ## Usage in NodeJS: as a HTTP web server
 
-You _could_ simply put `router` inside a standard NodeJS HTTP server and use `res.writeHead()`, `res.write()` and `res.end()` as normal (see this nice guide to the [NodeJS `http` module](http://zetcode.com/javascript/http/)).
+You _could_ simply use `router` inside a standard NodeJS `http` server, and use it's provided methods as normal (see this nice guide to the [NodeJS `http` module](http://zetcode.com/javascript/http/)):
+
+- `res.writeHead()`, `res.write()` and `res.end()`
 
 However, `router` provides some simple wrappers around these methods, just like express.js.
 
@@ -164,19 +166,21 @@ There is a `res.send()` method, which makes life easier for you:
 - pretty prints JSON output 
 - calls `res.end()` for you 
 
-The `res.json()` method is similar to above, but always sends the Content-Type `application/json`.
+The `res.json()` method is similar to above, but sends the Content-Type `application/json`.
 
-The `res.jsonp()` is similar to `res.json()`, except that it will wrap your JSON in a callback, like so:
+The `res.jsonp()` is similar to `res.json()`, but sends the Content-Type `text/javascript` and wraps your JSON in a callback, like so:
 
 ```js
-res.body = "callback({ some: \"data\" })"
+callback({ some: \"data\" })
 ```
 
 ### Using "middleware"
 
-If running an HTTP server, **router** supports "middleware", in a similar way to express.js. 
+If running an HTTP server, **router** supports "middleware", in a similar way to express.js.
 
-Creating middleware is very simple - define a function that takes `(req, res, next)` as parameters:
+Some express middleware may work with `router`, though this has not been tested.
+
+Creating middleware for `router` is very simple - define a function that takes `(req, res, next)` as parameters:
 
 ```js
 var getRequestTime = function(req, res, next) {
@@ -200,13 +204,13 @@ See the full example in [examples/http-router.js](examples/http-router.js)
 
 ### About HTTP request `body` parsing:
 
-In NodeJS HTTP servers, the [HTTP request body data is received in "chunks"](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/) - you must [manually combine & parse these chunks](https://stackoverflow.com/questions/28718887/node-js-http-request-how-to-detect-response-body-encoding) in order to get access to the whole `req.body` data.
+In NodeJS HTTP servers, the [HTTP request "body" is received in "chunks"](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/) - you must [manually combine & parse these chunks](https://stackoverflow.com/questions/28718887/node-js-http-request-how-to-detect-response-body-encoding) in order to get access to the whole `req.body` data.
 
-So, to make life easier, `router` does basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
+So to make life easier, `router` does basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
 
-1. The `req.body` chunks received are combined into a single string before being passed to your routes.
-2. The whole `req.body` string is added to `params` as `params.body`.
-3. If `req.body` is a URL-encoded or JSON-encoded string, `router` will convert it to a JS object, and also add its properties to `params`.
+1. The `req.body` chunks received are combined into a a single string as is available as `res.body` in your routes.
+2. The `req.body` string is also added to `params` as `params.body`.
+3. If `req.body` is a URL-encoded or JSON-encoded string, `router` will convert it to a JS object, and also add its _properties_ to `params`. For example, the original `req.body` may be `?user=bob&id=1` - this will be parsed for you and available as `params.user` and `params.id`.
 
 Therefore, in your routes, there's often no need to parse `req.body` yourself - unless handling gzipped data or file uploads (multipart form data or octet-streams).
 
