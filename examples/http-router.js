@@ -9,7 +9,10 @@
 //
 //   router() adds:
 //
-//   res.send()  : A convenience wrapper around res.write() and res.end(), called once (like express).
+//   res.send()   : A convenience wrapper around res.write() and res.end(), called once (like express).
+//   res.json()   : Like res.send() but always tries to return content-type of application/json.
+//   res.jsonp()  : Returns the JSON wrapped in "callback()"
+//   res.status() : Sets the header status code (200, 401, 404, etc)
 //
 // See http://zetcode.com/javascript/http/
 
@@ -46,8 +49,8 @@ http
         }
       },
       // for servers, you must pass in 'res' and 'req' after the routes object
-      res,
-      req
+      req,
+      res
     )
   })
   .listen("8181")
@@ -62,9 +65,10 @@ http
 // and is executed on each route match
 //
 // Define some middleware as a function
-var getRequestTime = function(res, req) {
+var getRequestTime = function(req, res, next) {
   req.time = Date.now()
   console.log("middleware: added req.time: ", req.time)
+  next()
 }
 // and just pass the middleware function to router.use()
 router.use(getRequestTime)
@@ -78,9 +82,10 @@ function configurableMiddleware(opts) {
   // do middleware config stuff here
 
   // then return the "middleware" function
-  return function theActualMiddleware(res, req) {
+  return function theActualMiddleware(req, res, next) {
     params = { ...params, ...opts }
     console.log("middleware: added to params: ", params)
+    next()
   }
 }
 
