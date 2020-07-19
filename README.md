@@ -253,6 +253,8 @@ To make life easier, `params` will also contain everything to be a valid respons
 
 There is currently no middleware support for Lambdas. If you need a more advanced Lambda router, see [middy](https://github.com/middyjs/middy).
 
+See the full example in [examples/lambda-router.js](examples/lambda-router.js).
+
 ## Usage in NodeJS: as a CLI args parser
 
 If you building a NodeJS program, you might want an easy way to parse the command line arguments it receives.
@@ -304,35 +306,10 @@ Rebuild the bundles in `dist/` using this command: `npm run build`
 
 - [Zetcode: javascript/http](http://zetcode.com/javascript/http/)
 - [@pyaesonekhant1234: differences-between-res-write-res-end-and-res-send](https://medium.com/@pyaesonekhant1234/differences-between-res-write-res-end-and-res-send-in-node-js-7c29e8e50654)
-
-## Further improvements:
-
-### Make `router` work in Lambdas
-
-See here: 
-
 - [Towards Data Science: Building your own router for AWS Lambda](https://towardsdatascience.com/serverless-building-your-own-router-c2ca3071b2ec)
 - [vkhazin/aws-lambda-http-router](https://github.com/vkhazin/aws-lambda-http-router)
 
-### Add basic expressjs middleware support
-
-- fix order of `req`, `res`
-- implement `next()`
-- improve body handling (see below)
-- create `express-compat` middleware (see below)
-
-### Improved `req.body` handling
-
-- wait for all body data chunks to arrive
-- combine the chunks into a single string
-
-After middleware has run:
-
-- if body URL or JSON encoded, convert to JS object
-- add parsed body to `req.body`, so user doesn't have to parse it themselves
-- add parsed body properties to `params`
-
-See https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/
+## Further improvements
 
 ### "express-compat" middleware
 
