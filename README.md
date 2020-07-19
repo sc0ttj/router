@@ -112,29 +112,9 @@ See the full example in [examples/client-side-router.html](examples/client-side-
 
 ## Usage in NodeJS: as a HTTP web server
 
-You _could_ simply put **router** inside a standard NodeJS HTTP server and use `res.writeHead()`, `res.write()` and `res.end()` as normal (see this nice guide to the [NodeJS `http` module](http://zetcode.com/javascript/http/)).
+You _could_ simply put `router` inside a standard NodeJS HTTP server and use `res.writeHead()`, `res.write()` and `res.end()` as normal (see this nice guide to the [NodeJS `http` module](http://zetcode.com/javascript/http/)).
 
-However, **router** provides some simple wrappers around these methods, just like express.js.
-
-There is a `res.status()` method, which sets `res.statusCode` for you.
-
-There is a `res.send()` method, which makes life easier for you:
-
-- sets appropriate header status to 200 (if `res.status()` not used)
-- sets appropriate content type:
-  * text/html                 - if given a string
-  * application/json          - if given an object, array or JSON
-  * application/octet-stream  - if given a Buffer
-- pretty prints JSON output 
-- calls `res.end()` for you 
-
-The `res.json()` method is similar to above, but always sends the Content-Type `application/json`.
-
-The `res.jsonp()` is similar to `res.json()`, except that it will wrap your JSON in a callback, like so:
-
-```js
-res.body = "callback({ some: \"data\" })"
-```
+However, `router` provides some simple wrappers around these methods, just like express.js.
 
 Here's an example of routing HTTP requests in your NodeJS based web server:
 
@@ -172,23 +152,27 @@ http.createServer((req, res) => {
 
 ```
 
-### About HTTP request `body` parsing:
+There is a `res.status()` method, which sets `res.statusCode` for you.
 
-In NodeJS HTTP servers, the [HTTP request body data is received in "chunks"](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/) - you must [manually combine & parse these chunks](https://stackoverflow.com/questions/28718887/node-js-http-request-how-to-detect-response-body-encoding) in order to get access to the whole `res.body` data.
+There is a `res.send()` method, which makes life easier for you:
 
-So, to make life easier, `router` does basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
+- sets appropriate header status to 200 (if `res.status()` not used)
+- sets appropriate content type:
+  * `text/html`                 - if given a string
+  * `application/json`          - if given an object, array or JSON
+  * `application/octet-stream`  - if given a Buffer
+- pretty prints JSON output 
+- calls `res.end()` for you 
 
-1. The `req.body` chunks received are combined into a single string before being passed to your routes.
-2. The whole `req.body` string is added to `params` as `params.body`.
-3. If `req.body` is a URL-encoded or JSON-encoded string, `router` will convert it to a JS object, and also add its properties to `params`.
+The `res.json()` method is similar to above, but always sends the Content-Type `application/json`.
 
-Therefore, in your routes, there's often no need to parse `req.body` yourself - unless handling gzipped data or file uploads (multipart form data or octet-streams).
+The `res.jsonp()` is similar to `res.json()`, except that it will wrap your JSON in a callback, like so:
 
-If you do need to handle gzipping, multi-part form data or binary file uploads, use middleware like `body-parser` or `co-body`.
+```js
+res.body = "callback({ some: \"data\" })"
+```
 
-If you're using `router` in a GET-based restful API, you prob don't need to worry about `req.body`, it's usually only for POST data and file uploads.
-
-### Using middleware
+### Using "middleware"
 
 If running an HTTP server, **router** supports "middleware", in a similar way to express.js. 
 
@@ -213,6 +197,22 @@ router.use([func1, func2, func3])
 ```
 
 See the full example in [examples/http-router.js](examples/http-router.js)
+
+### About HTTP request `body` parsing:
+
+In NodeJS HTTP servers, the [HTTP request body data is received in "chunks"](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/) - you must [manually combine & parse these chunks](https://stackoverflow.com/questions/28718887/node-js-http-request-how-to-detect-response-body-encoding) in order to get access to the whole `req.body` data.
+
+So, to make life easier, `router` does basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
+
+1. The `req.body` chunks received are combined into a single string before being passed to your routes.
+2. The whole `req.body` string is added to `params` as `params.body`.
+3. If `req.body` is a URL-encoded or JSON-encoded string, `router` will convert it to a JS object, and also add its properties to `params`.
+
+Therefore, in your routes, there's often no need to parse `req.body` yourself - unless handling gzipped data or file uploads (multipart form data or octet-streams).
+
+If you do need to handle gzipping, multi-part form data or binary file uploads, use middleware like `body-parser` or `co-body`.
+
+If you're using `router` in a GET-based restful API, you prob don't need to worry about `req.body`, it's usually only for POST data and file uploads.
 
 ## Usage in NodeJS: as a CLI args parser
 
