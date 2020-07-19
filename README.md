@@ -214,6 +214,45 @@ If you do need to handle gzipping, multi-part form data or binary file uploads, 
 
 If you're using `router` in a GET-based restful API, you prob don't need to worry about `req.body`, it's usually only for POST data and file uploads.
 
+## Usage in AWS Lambda: as router for your API
+
+Here's an example of using `router` in an AWS Lambda:
+
+```js
+'use strict';
+var router = require("@scottjarvis/router")
+
+exports.main = (event, context, callback) => {
+  router(
+    {
+      "/ping": params => {
+        // do stuff here
+        callback(null, params)
+      },
+
+      "/user/:userId": params => {
+        // do stuff here
+        if (params.userId) { ... }
+        callback(null, resp)
+      }
+    },
+    // for Lambdas, you must pass in 'event', 'context' and 'callback'
+    event,
+    context,
+    callback
+  )
+})
+
+```
+
+In Lambdas, `router` works out which route to run from the `event.path` property (not HTTP `req` objects).
+
+The `params` object will include the incoming GET, POST (etc) data, taken from the `event` object. 
+
+To make life easier, `params` will also contain everything to be a valid response object - so it can be passed to `callback()`.
+
+There is currently no middleware support for Lambdas. If you need a more advanced Lambda router, see [middy](https://github.com/middyjs/middy).
+
 ## Usage in NodeJS: as a CLI args parser
 
 If you building a NodeJS program, you might want an easy way to parse the command line arguments it receives.
