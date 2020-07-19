@@ -320,9 +320,25 @@ function router(routes, req, res, cb) {
           // jsonp - returns user content wrapped in a callback
           res.jsonp = function(content) {
             res.writeHead(res.statusCode, {
-              "Content-Type": "application/json"
+              "Content-Type": "text/javascript"
             })
-            content = "callback(" + JSON.stringify(content) + ")"
+
+            // replace chars not allowed in JavaScript that are in JSON
+            content = content
+              .replace(/\u2028/g, "\\u2028")
+              .replace(/\u2029/g, "\\u2029")
+
+            // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
+            // the typeof check is just to reduce client error noise
+            content =
+              "/**/ typeof " +
+              callback +
+              " === 'function' && " +
+              callback +
+              "(" +
+              content +
+              ");"
+
             res.write(content)
             res.end()
             return res
