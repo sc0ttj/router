@@ -19,7 +19,7 @@
 ## Features
 
 - Easy setup, zero dependencies
-- Only 1.5kb minified and gzipped
+- Only 1.7kb minified and gzipped
 - Simple syntax and usage
 - Works **client-side**, in browsers:
   - as a router for single page applications (SPAs)
@@ -195,9 +195,24 @@ And do `router.use(someFunc)` to enable it:
 ```js
 // pass the middleware function to router.use()
 router.use(getRequestTime)
+```
 
-// or pass an array of middlewares
+Or enable middleware for specific routes:
+
+```js
+router.use("/home", getRequestTime)
+```
+
+You can also pass an array of middlewares:
+
+```js
 router.use([func1, func2, func3])
+```
+
+Or any array of middlewares to run on a specific route:
+
+```js
+router.use('/home', [func1, func2, func3])
 ```
 
 See the full example in [examples/http-router.js](examples/http-router.js)

@@ -14,6 +14,7 @@
  *
  * - Works server-side, in Node:
  *   - as a router for an HTTP server (express-like API, also supports "middleware")
+ *   - as a router for an AWS Lambda (routing of the event data passed into the lambda)
  *   - as a router for a command-line tool (accepts first arg as the URL/path)
  *
  *
@@ -246,18 +247,21 @@ function router(routes, req, res, cb) {
     if (isNodeServer) {
       // Use middleware (funcs that run on each request):
       // wrap each middleware in a func that knows what 'next' is
-      // and passes it into the middleware to be run, at run-time.
+      // and passes it into the middleware to be run, at run-time,
+      // and tries to handle thrown errors like express does.
       // More info:
       // - https://www.digitalocean.com/community/tutorials/nodejs-creating-your-own-express-middleware
+      // - https://expressjs.com/en/guide/error-handling.html
       var wrappedMiddleware = []
-      router.middleware.forEach(function(fn, i) {
-        // next() - throws the err, if not null, goes to next middleware
+      router.middleware.forEach(function(mw, i) {
+        // next() - throws the err. if no error, goes to next middleware
         var next = function(err) {
           if (typeof err === "undefined") {
             try {
-              wrappedMiddleware[i + 1] || noop
+              // run the next middleware
+              if (wrappedMiddleware[i + 1]) wrappedMiddleware[i + 1]
             } catch (e) {
-              next(e)
+              throw e
             }
           } else if (typeof err === "string") {
             throw new Error(err)
@@ -267,12 +271,28 @@ function router(routes, req, res, cb) {
         }
         // wrapped middleware - tries to run middleware, then runs next()
         var wrappedFn = function() {
-          try {
-            fn(req, res, next)
-          } catch (e) {
-            next(e)
+          if (typeof mw === "object") {
+            // if mw is an object, it's only meant to be run on specific routes
+            // if current urlPath matches middleware routePattern
+            // try to run the middleware
+            if (urlPathMatchesRoutePattern(urlPath, mw.routePattern)) {
+              try {
+                mw.func(req, res, next)
+              } catch (e) {
+                next(e)
+              }
+            }
+          } else if (typeof mw === "function") {
+            // if mw is a function, it should run on all routes
+            try {
+              mw(req, res, next)
+            } catch (e) {
+              next(e)
+            }
           }
         }
+
+        // add the wrapped middleware
         wrappedMiddleware.push(wrappedFn)
       })
 
@@ -458,14 +478,34 @@ function router(routes, req, res, cb) {
 router.middleware = []
 
 // lets user register functions as middleware
-router.use = function(fn) {
-  if (Array.isArray(fn)) {
-    fn.forEach(function(f) {
+
+// one - may be a route (string), or middleware (function) or an array of middleware
+// two - may be middleware (function) or an array of middleware
+router.use = function(one, two) {
+  // if 1st param is a route, the given mw should only run for that route.
+  // in this case, add the mw as an object, containing the root and func
+  if (typeof one === "string") {
+    // if 2nd param is an array, loop through it, and add register function
+    if (Array.isArray(two)) {
+      two.forEach(function(f) {
+        router.middleware.push({ routePattern: one, func: f })
+      })
+      // if 2nd param is a function, register it
+    } else if (typeof two === "function") {
+      router.middleware.push({ routePattern: one, func: two })
+    }
+  }
+
+  // if 1st param is array, loop through it, register each function
+  if (Array.isArray(one)) {
+    one.forEach(function(f) {
       router.middleware.push(f)
     })
-  } else if (typeof fn === "function") {
-    router.middleware.push(fn)
+    // if 1st param is a function, register it
+  } else if (typeof one === "function") {
+    router.middleware.push(one)
   }
+  // make .use() chainable, like express
   return router
 }
 
