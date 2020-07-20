@@ -271,7 +271,7 @@ The `params` object will include the incoming GET, POST (etc) data, taken from t
 - The event body is added "as is" to `params` as `params.body`.
 - The contents of `event.body` are parsed into a JS object, and its properties added into `params`.
 
-To make life easier, `params` will also contain everything needed for a valid response object - so it can be passed straight to `callback()`, such as headers as status code.
+To make life easier, `params` will also contain everything needed for a valid response object, such as headers as status code - so it can be passed straight to `callback()`.
 
 There is currently no middleware support for Lambdas. If you need a more advanced Lambda router, see [middy](https://github.com/middyjs/middy).
 
