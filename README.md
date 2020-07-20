@@ -112,7 +112,7 @@ See the full example in [examples/client-side-router.html](examples/client-side-
 
 ## Usage in NodeJS: as a HTTP web server
 
-You _could_ simply use `router` inside a standard NodeJS `http` server (`res.writeHead()`, `res.write()` and `res.end()`), and use it's provided methods as normal (see this nice guide to the [NodeJS `http` module](http://zetcode.com/javascript/http/)):
+You _could_ simply use `router` inside a standard NodeJS `http` server, with it's provided methods `res.writeHead()`, `res.write()` and `res.end()` (see this nice guide to the [NodeJS `http` module](http://zetcode.com/javascript/http/)).
 
 However, `router` provides some simple wrappers around these methods, just like [express.js](https://expressjs.com/en/api.html#res.send).
 
@@ -217,7 +217,7 @@ See the full example in [examples/http-router.js](examples/http-router.js)
 
 ### About HTTP request `body` parsing:
 
-In NodeJS HTTP servers, the [HTTP request "body" is received in "chunks"](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/) - you must [manually combine & parse these chunks](https://stackoverflow.com/questions/28718887/node-js-http-request-how-to-detect-response-body-encoding) in order to get access to the whole `req.body` data.
+In NodeJS HTTP servers, the [HTTP request "body" is received in "chunks"](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/) - you must normally [combine & parse these chunks](https://stackoverflow.com/questions/28718887/node-js-http-request-how-to-detect-response-body-encoding) in order to get access to the whole `req.body` data.
 
 So to make life easier, `router` does this basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
 
