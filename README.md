@@ -266,7 +266,29 @@ To make life easier inside your routes:
 1. If `event.body` is URL-encoded or JSON-encoded, it'll be parsed into a JS object, and its properties added into `params`.
 2. `params` will also has everything needed for a valid response object, so it can be passed straight to `callback()`.
 
-There is currently no middleware support for Lambdas. If you need a more advanced Lambda router, see [middy](https://github.com/middyjs/middy).
+There is currently very basic middleware support for Lambdas:
+
+- Lambda middleware functions take `(event, next)` as parameters
+- so you should read or modify `event`, instead of `req` and `res`
+- it should otherwise be similar to using HTTP middleware :)
+
+Here's how to define some Lambda middleware:
+
+```js
+var getRequestTime = function(event, next) {
+  req.time = Date.now()
+  console.log("middleware: added req.time: ", req.time)
+  next()
+}
+```
+
+And just pass the middleware function to `router.use()`:
+
+```js
+router.use(getRequestTime)
+```
+
+If you need a more advanced Lambda router, see [middy](https://github.com/middyjs/middy).
 
 See the full example in [examples/lambda-router.js](examples/lambda-router.js).
 

@@ -33,17 +33,17 @@
  */
 
 function router(routes, req, res, cb) {
-  var noop = function() {}
-
   var urlPath
+
+  var matchedRoute = false
 
   var isBrowser =
     typeof window !== "undefined" && typeof window.document !== "undefined"
 
   var isNode =
-    typeof process !== "undefined"
-    && process.versions !== null
-    && process.versions.node !== null
+    typeof process !== "undefined" &&
+    process.versions !== null &&
+    process.versions.node !== null
 
   var isNodeServer =
     isNode && typeof req !== "undefined" && typeof res !== "undefined"
@@ -72,7 +72,6 @@ function router(routes, req, res, cb) {
   }
 
   var routeFromUrl = urlPath.split("#")[1]
-  var matchedRoute = false
 
   // Parse URLs (Browser) ...adapted from https://vanillajstoolkit.com/helpers/router/
   var getParamsFromUrlPath = function(url) {
@@ -232,7 +231,7 @@ function router(routes, req, res, cb) {
   // More info:
   // - https://www.digitalocean.com/community/tutorials/nodejs-creating-your-own-express-middleware
   // - https://expressjs.com/en/guide/error-handling.html
-  var wrapMiddleware function() {
+  var wrapMiddleware = function() {
     router.middleware.forEach(function(mw, i) {
       // next() - throws the err. if no error, goes to next middleware
       var next = function(err) {
@@ -267,8 +266,8 @@ function router(routes, req, res, cb) {
         } else if (typeof mw === "function") {
           // if mw is a function, it should run on all routes
           try {
-              if (isNodeServer) mw(req, res, next)
-              if (isLambda) mw(event, next)
+            if (isNodeServer) mw(req, res, next)
+            if (isLambda) mw(event, next)
           } catch (e) {
             next(e)
           }
@@ -396,16 +395,17 @@ function router(routes, req, res, cb) {
           // ...we call it before we modify any req/res properties
           wrappedMiddleware[0]
 
+          // if the user did not use body-parser style middleware, we can
+          // do some basic parsing for them anyway:
+
           // on "end" we have finished receiving the body
           // so lets get the whole body
           var b = Buffer.concat(chunks).toString()
-
           // if body parser already ran, there will be a req._body property, so
           // if res._body exists, don't override or re-parse req.body
           if (!req._body) req.body = b
 
-          // if the user did not use body-parser style middleware, we can
-          // do some basic parsing for them anyway:
+          // if body was not parsed, and not a GET request:
           //  - put the body chunks into one string
           //  - convert it into a JS object if possible
           //  - add the newly concatenated & parsed body to req.body
@@ -443,9 +443,9 @@ function router(routes, req, res, cb) {
     }
 
     if (
-      isLambda
-      && typeof event.path !== "undefined"
-      && typeof event.headers !== "undefined"
+      isLambda &&
+      typeof event.path !== "undefined" &&
+      typeof event.headers !== "undefined"
     ) {
       // NOTE: for parsing multipart form data (file uploads), see npm module
       // https://github.com/francismeynard/lambda-multipart-parser
@@ -475,7 +475,7 @@ function router(routes, req, res, cb) {
 
       // get all the relevant stuff (from event object) into the
       // "params" object... include everything required for a
-      // valid lambda response object (..I think?) and be bad,
+      // valid lambda response object (..I think?) and be bad:
       // enable CORS by default (..I think!)
       params = {
         ...params,
@@ -510,23 +510,23 @@ router.use = function(one, two) {
   // if 1st param is a route, the given mw should only run for that route.
   // in this case, add the mw as an object, containing the root and func
   if (typeof one === "string") {
-    // if 2nd param is an array, loop through it, and add register function
+    // if 2nd param is an array, loop through it, and register each mw function
     if (Array.isArray(two)) {
       two.forEach(function(f) {
         router.middleware.push({ routePattern: one, func: f })
       })
-      // if 2nd param is a function, register it
+      // if 2nd param is a mw function, register it
     } else if (typeof two === "function") {
       router.middleware.push({ routePattern: one, func: two })
     }
   }
 
-  // if 1st param is array, loop through it, register each function
+  // if 1st param is array, loop through it, register each mw function
   if (Array.isArray(one)) {
     one.forEach(function(f) {
       router.middleware.push(f)
     })
-    // if 1st param is a function, register it
+    // if 1st param is a mw function, register it
   } else if (typeof one === "function") {
     router.middleware.push(one)
   }
