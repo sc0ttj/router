@@ -226,7 +226,7 @@ So to make life easier, `router` does this basic parsing of the HTTP request `bo
 
 Therefore, when inside your routes, there's often no need to parse `req.body` yourself - unless handling gzipped data or file uploads (multi-part form data or octect-streams). In this case, you should use middleware like [`body-parser`](https://expressjs.com/resources/middleware/body-parser.html).
 
-If you're rnunning a GET-based restful API, you probably don't need to worry about `req.body`, it's usually only for POST data and file uploads.
+If you're running a GET-based restful API, you probably don't need to worry about `req.body`, it's usually only for POST data and file uploads.
 
 ## Usage in AWS Lambda: as router for your API
 
