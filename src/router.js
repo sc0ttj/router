@@ -41,9 +41,9 @@ function router(routes, req, res, cb) {
     typeof window !== "undefined" && typeof window.document !== "undefined"
 
   var isNode =
-    typeof process !== "undefined" &&
-    process.versions !== null &&
-    process.versions.node !== null
+    typeof process !== "undefined"
+    && process.versions !== null
+    && process.versions.node !== null
 
   var isNodeServer =
     isNode && typeof req !== "undefined" && typeof res !== "undefined"
@@ -225,6 +225,63 @@ function router(routes, req, res, cb) {
     location.hash = "#" + url
   }
 
+  // Use middleware (funcs that run on each request):
+  // wrap each middleware in a func that knows what 'next' is
+  // and passes it into the middleware to be run, at run-time,
+  // and tries to handle thrown errors like express does.
+  // More info:
+  // - https://www.digitalocean.com/community/tutorials/nodejs-creating-your-own-express-middleware
+  // - https://expressjs.com/en/guide/error-handling.html
+  var wrapMiddleware function() {
+    router.middleware.forEach(function(mw, i) {
+      // next() - throws the err. if no error, goes to next middleware
+      var next = function(err) {
+        if (typeof err === "undefined") {
+          try {
+            // run the next middleware
+            if (wrappedMiddleware[i + 1]) wrappedMiddleware[i + 1]
+          } catch (e) {
+            next(e)
+          }
+        } else if (typeof err === "string") {
+          console.error(err)
+        } else if (typeof err === Error) {
+          console.error(err.message)
+        }
+      }
+      // wrapped middleware - tries to run middleware, then runs next()
+      var wrappedFn = function() {
+        // if mw is an object, it's only meant
+        // to be run on specific routes.
+        if (typeof mw === "object") {
+          // if current urlPath matches middleware routePattern,
+          // try to run the middleware.
+          if (urlPathMatchesRoutePattern(urlPath, mw.routePattern)) {
+            try {
+              if (isNodeServer) mw.func(req, res, next)
+              if (isLambda) mw.func(event, next)
+            } catch (e) {
+              next(e)
+            }
+          }
+        } else if (typeof mw === "function") {
+          // if mw is a function, it should run on all routes
+          try {
+              if (isNodeServer) mw(req, res, next)
+              if (isLambda) mw(event, next)
+          } catch (e) {
+            next(e)
+          }
+        }
+      }
+
+      // add the wrapped middleware
+      wrappedMiddleware.push(wrappedFn)
+    })
+  }
+  var wrappedMiddleware = []
+  wrapMiddleware()
+
   // on router init, load the correct route,
   // matched against the current URL path (or req.path, event.path, etc)
   Object.keys(routes).forEach(routePattern => {
@@ -245,56 +302,6 @@ function router(routes, req, res, cb) {
     }
 
     if (isNodeServer) {
-      // Use middleware (funcs that run on each request):
-      // wrap each middleware in a func that knows what 'next' is
-      // and passes it into the middleware to be run, at run-time,
-      // and tries to handle thrown errors like express does.
-      // More info:
-      // - https://www.digitalocean.com/community/tutorials/nodejs-creating-your-own-express-middleware
-      // - https://expressjs.com/en/guide/error-handling.html
-      var wrappedMiddleware = []
-      router.middleware.forEach(function(mw, i) {
-        // next() - throws the err. if no error, goes to next middleware
-        var next = function(err) {
-          if (typeof err === "undefined") {
-            try {
-              // run the next middleware
-              if (wrappedMiddleware[i + 1]) wrappedMiddleware[i + 1]
-            } catch (e) {
-              next(e)
-            }
-          } else if (typeof err === "string") {
-            console.error(err)
-          } else if (typeof err === Error) {
-            console.error(err.message)
-          }
-        }
-        // wrapped middleware - tries to run middleware, then runs next()
-        var wrappedFn = function() {
-          // if mw is an object, it's only meant to be run on specific routes.
-          if (typeof mw === "object") {
-            // if current urlPath matches middleware routePattern, try to run the middleware.
-            if (urlPathMatchesRoutePattern(urlPath, mw.routePattern)) {
-              try {
-                mw.func(req, res, next)
-              } catch (e) {
-                next(e)
-              }
-            }
-          } else if (typeof mw === "function") {
-            // if mw is a function, it should run on all routes
-            try {
-              mw(req, res, next)
-            } catch (e) {
-              next(e)
-            }
-          }
-        }
-
-        // add the wrapped middleware
-        wrappedMiddleware.push(wrappedFn)
-      })
-
       // Get all of req.body before we do our routing:
       var chunks = []
       var bytesReceived
@@ -394,7 +401,7 @@ function router(routes, req, res, cb) {
           var b = Buffer.concat(chunks).toString()
 
           // if body parser already ran, there will be a req._body property, so
-          // if res._body exists, don't override re-parse req.body
+          // if res._body exists, don't override or re-parse req.body
           if (!req._body) req.body = b
 
           // if the user did not use body-parser style middleware, we can
@@ -436,9 +443,9 @@ function router(routes, req, res, cb) {
     }
 
     if (
-      isLambda &&
-      typeof event.path !== "undefined" &&
-      typeof event.headers !== "undefined"
+      isLambda
+      && typeof event.path !== "undefined"
+      && typeof event.headers !== "undefined"
     ) {
       // NOTE: for parsing multipart form data (file uploads), see npm module
       // https://github.com/francismeynard/lambda-multipart-parser
@@ -450,10 +457,12 @@ function router(routes, req, res, cb) {
       // the group the person would belong to. This value can be used
       // to implement our authorization.
 
-      var ct = event.headers["content-type"] || event.headers["Content-Type"]
+      // now call the first middleware. It will call 2nd one, etc
+      wrappedMiddleware[0]
 
       // parse the body into a usable JS object
       var bodyParams = {}
+      var ct = event.headers["content-type"] || event.headers["Content-Type"]
       if (ct === "application/json") {
         try {
           bodyParams = JSON.parse(event.body)
@@ -466,7 +475,8 @@ function router(routes, req, res, cb) {
 
       // get all the relevant stuff (from event object) into the
       // "params" object... include everything required for a
-      // valid lambda response object
+      // valid lambda response object (..I think?) and be bad,
+      // enable CORS by default (..I think!)
       params = {
         ...params,
         method: event.httpMethod,
