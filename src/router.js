@@ -261,12 +261,12 @@ function router(routes, req, res, cb) {
               // run the next middleware
               if (wrappedMiddleware[i + 1]) wrappedMiddleware[i + 1]
             } catch (e) {
-              throw e
+              next(e)
             }
           } else if (typeof err === "string") {
-            throw new Error(err)
+            console.error(err)
           } else if (typeof err === Error) {
-            throw err
+            console.error(err.message)
           }
         }
         // wrapped middleware - tries to run middleware, then runs next()
