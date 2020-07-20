@@ -172,9 +172,9 @@ The `res.jsonp()` is similar to `res.json()`, but sends the Content-Type `text/j
 callback({ some: \"data\" })
 ```
 
-### Using "middleware"
+### Using HTTP "middleware"
 
-If running an HTTP server, `router` supports "middleware", in a similar way to express.js.
+If running an HTTP server (or Lambda, see below), `router` supports "middleware", in a similar way to express.js.
 
 Some [express middleware](https://expressjs.com/en/resources/middleware.html) may work with `router`, though this has not been tested.
 
@@ -266,6 +266,8 @@ To make life easier inside your routes:
 1. If `event.body` is URL-encoded or JSON-encoded, it'll be parsed into a JS object, and its properties added into `params`.
 2. `params` will also has everything needed for a valid response object, so it can be passed straight to `callback()`.
 
+### Using Lambda "middleware"
+
 There is currently very basic middleware support for Lambdas:
 
 - Lambda middleware functions take `(event, next)` as parameters
@@ -276,8 +278,8 @@ Here's how to define some Lambda middleware:
 
 ```js
 var getRequestTime = function(event, next) {
-  req.time = Date.now()
-  console.log("middleware: added req.time: ", req.time)
+  event.time = Date.now()
+  console.log("middleware: added event.time: ", event.time)
   next()
 }
 ```
