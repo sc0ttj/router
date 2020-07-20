@@ -271,10 +271,9 @@ function router(routes, req, res, cb) {
         }
         // wrapped middleware - tries to run middleware, then runs next()
         var wrappedFn = function() {
+          // if mw is an object, it's only meant to be run on specific routes.
           if (typeof mw === "object") {
-            // if mw is an object, it's only meant to be run on specific routes
-            // if current urlPath matches middleware routePattern
-            // try to run the middleware
+            // if current urlPath matches middleware routePattern, try to run the middleware.
             if (urlPathMatchesRoutePattern(urlPath, mw.routePattern)) {
               try {
                 mw.func(req, res, next)
@@ -408,10 +407,14 @@ function router(routes, req, res, cb) {
             // turn the body into a JS object, if possible
             if (ct === "application/x-www-form-urlencoded") {
               // query string like stuff. Example: from html form (POST)
-              req.body = getParamsFromUrlPath(b) || req.body
+              req.body = getParamsFromUrlPath(b)
             } else if (ct === "application/json") {
               // JSON or object. Example, JS object posted via ajax
-              req.body = JSON.parse(b) || req.body
+              try {
+                req.body = JSON.parse(b)
+              } catch (e) {
+                console.error(e.message)
+              }
             }
             // else if (ct === "application/octet-stream") {} // file upload (an actual file sent our way)
             // else if (ct === "multipart/form-data") {       // file upload (HTML input type=file)
@@ -447,10 +450,20 @@ function router(routes, req, res, cb) {
       // the group the person would belong to. This value can be used
       // to implement our authorization.
 
-      // parse the body into a usable JS object
-      var bodyParams = JSON.parse(event.body) || {}
-
       var ct = event.headers["content-type"] || event.headers["Content-Type"]
+
+      // parse the body into a usable JS object
+      var bodyParams = {}
+      if (ct === "application/json") {
+        try {
+          bodyParams = JSON.parse(event.body)
+        } catch (e) {
+          console.error(e.message)
+        }
+      } else if (ct === "application/x-www-form-urlencoded") {
+        bodyParams = getParamsFromUrlPath(event.body)
+      }
+
       // get all the relevant stuff (from event object) into the
       // "params" object... include everything required for a
       // valid lambda response object
@@ -465,7 +478,6 @@ function router(routes, req, res, cb) {
         },
         statusCode: 200,
         isBase64Encoded: false,
-        body: event.body,
         ...bodyParams
       }
     }

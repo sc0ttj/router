@@ -93,10 +93,10 @@ function configurableMiddleware(opts) {
 router.use(configurableMiddleware({ foo: "bar" }))
 
 // you can also pass an array of middlewares
-router.use([func1, func2, func3])
+router.use([getRequestTime, configurableMiddleware({ foo: "bar" })])
 
 // or enable middleware for a specific route pattern
 router.use("/home", getRequestTime)
 
 // or any array of middlewares to run on a specific route
-router.use("/home", [func1, func2, func3])
+router.use("/home", [getRequestTime, configurableMiddleware({ foo: "bar" })])
