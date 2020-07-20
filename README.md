@@ -223,7 +223,7 @@ In NodeJS HTTP servers, the [HTTP request "body" is received in "chunks"](https:
 
 So to make life easier, `router` does basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
 
-1. The `req.body` chunks received are combined into a a single string as is available as `res.body` in your routes.
+1. The `req.body` chunks received are combined into a string, available as `res.body` in your routes.
 2. The `req.body` string is also added to `params` as `params.body`.
 3. If `req.body` is a URL-encoded or JSON-encoded string, `router` will convert it to a JS object, and also add its _properties_ to `params`. For example, the original `req.body` may be `?user=bob&id=1` - this will be parsed for you and available as `params.user` and `params.id`.
 
