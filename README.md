@@ -112,11 +112,9 @@ See the full example in [examples/client-side-router.html](examples/client-side-
 
 ## Usage in NodeJS: as a HTTP web server
 
-You _could_ simply use `router` inside a standard NodeJS `http` server, and use it's provided methods as normal (see this nice guide to the [NodeJS `http` module](http://zetcode.com/javascript/http/)):
+You _could_ simply use `router` inside a standard NodeJS `http` server (`res.writeHead()`, `res.write()` and `res.end()`), and use it's provided methods as normal (see this nice guide to the [NodeJS `http` module](http://zetcode.com/javascript/http/)):
 
-- `res.writeHead()`, `res.write()` and `res.end()`
-
-However, `router` provides some simple wrappers around these methods, just like express.js.
+However, `router` provides some simple wrappers around these methods, just like [express.js](https://expressjs.com/en/api.html#res.send).
 
 Here's an example of routing HTTP requests in your NodeJS based web server:
 
@@ -138,10 +136,10 @@ http.createServer((req, res) => {
       "/user/:userId": params => {
         console.log("serving JSON!", params)
         // set header to "200" manually 
-        res.status(200)
         // set content-type to "application/json",
         // set content (prettified JSON) 
         // end response
+        res.status(200)
         res.send(params)
       }
       
@@ -176,9 +174,9 @@ callback({ some: \"data\" })
 
 ### Using "middleware"
 
-If running an HTTP server, **router** supports "middleware", in a similar way to express.js.
+If running an HTTP server, `router` supports "middleware", in a similar way to express.js.
 
-Some express middleware may work with `router`, though this has not been tested.
+Some [express middleware](https://expressjs.com/en/resources/middleware.html) may work with `router`, though this has not been tested.
 
 Creating middleware for `router` is very simple - define a function that takes `(req, res, next)` as parameters:
 
@@ -224,14 +222,11 @@ In NodeJS HTTP servers, the [HTTP request "body" is received in "chunks"](https:
 So to make life easier, `router` does this basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
 
 1. The `req.body` chunks received are combined into a string, available as `req.body` in your routes.
-2. The `req.body` string is also added to `params` as `params.body`.
-3. If `req.body` is a URL-encoded or JSON-encoded string, `router` will convert it to a JS object, and also add its _properties_ to `params`. For example, the original `req.body` may be `?user=bob&id=1` - this will be parsed for you and available as `params.user` and `params.id`.
+2. If `req.body` is a URL-encoded or JSON-encoded string, `router` will convert it to a JS object, and also add its _properties_ to `params`. For example, the original `req.body` may be `?user=bob&id=1` - this will be parsed for you and available as `params.user` and `params.id`.
 
-Therefore, in your routes, there's often no need to parse `req.body` yourself - unless handling gzipped data or file uploads.
+Therefore, when inside your routes, there's often no need to parse `req.body` yourself - unless handling gzipped data or file uploads (multi-part form data or octect-streams). In this case, you should use middleware like [`body-parser`](https://expressjs.com/resources/middleware/body-parser.html).
 
-If you do need gzipping or uploads (multi-part form data or octect-streams), you should use middleware like `body-parser`.
-
-If you're using `router` in a GET-based restful API, you prob don't need to worry about `req.body`, it's usually only for POST data and file uploads.
+If you're rnunning a GET-based restful API, you probably don't need to worry about `req.body`, it's usually only for POST data and file uploads.
 
 ## Usage in AWS Lambda: as router for your API
 
@@ -266,12 +261,10 @@ exports.main = (event, context, callback) => {
 
 In Lambdas, `router` works out which route to run from the `event.path` property (not from any HTTP `req` objects).
 
-The `params` object will include the incoming GET, POST (etc) data, taken from the `event` object:
+To make life easier inside your routes:
 
-- The event body is added "as is" to `params` as `params.body`.
-- The contents of `event.body` are parsed into a JS object, and its properties added into `params`.
-
-To make life easier, `params` will also contain everything needed for a valid response object, such as headers and statusCode - so it can be passed straight to `callback()`.
+1. If `event.body` is URL-encoded or JSON-encoded, it'll be parsed into a JS object, and its properties added into `params`.
+2. `params` will also has everything needed for a valid response object, so it can be passed straight to `callback()`.
 
 There is currently no middleware support for Lambdas. If you need a more advanced Lambda router, see [middy](https://github.com/middyjs/middy).
 
