@@ -264,7 +264,7 @@ exports.main = (event, context, callback) => {
 
 ```
 
-In Lambdas, `router` works out which route to run from the `event.path` property (not HTTP `req` objects).
+In Lambdas, `router` works out which route to run from the `event.path` property (not from any HTTP `req` objects).
 
 The `params` object will include the incoming GET, POST (etc) data, taken from the `event` object:
 
