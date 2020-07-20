@@ -221,15 +221,15 @@ See the full example in [examples/http-router.js](examples/http-router.js)
 
 In NodeJS HTTP servers, the [HTTP request "body" is received in "chunks"](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/) - you must [manually combine & parse these chunks](https://stackoverflow.com/questions/28718887/node-js-http-request-how-to-detect-response-body-encoding) in order to get access to the whole `req.body` data.
 
-So to make life easier, `router` does basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
+So to make life easier, `router` does this basic parsing of the HTTP request `body` for you, so that it's readily available in the `params` passed to your routes:
 
-1. The `req.body` chunks received are combined into a string, available as `res.body` in your routes.
+1. The `req.body` chunks received are combined into a string, available as `req.body` in your routes.
 2. The `req.body` string is also added to `params` as `params.body`.
 3. If `req.body` is a URL-encoded or JSON-encoded string, `router` will convert it to a JS object, and also add its _properties_ to `params`. For example, the original `req.body` may be `?user=bob&id=1` - this will be parsed for you and available as `params.user` and `params.id`.
 
-Therefore, in your routes, there's often no need to parse `req.body` yourself - unless handling gzipped data or file uploads (multipart form data or octet-streams).
+Therefore, in your routes, there's often no need to parse `req.body` yourself - unless handling gzipped data or file uploads.
 
-If you do need to handle gzipping, multi-part form data or binary file uploads, use middleware like `body-parser` or `co-body`.
+If you do need gzipping or uploads (multi-part form data or octect-streams), you should use middleware like `body-parser`.
 
 If you're using `router` in a GET-based restful API, you prob don't need to worry about `req.body`, it's usually only for POST data and file uploads.
 
