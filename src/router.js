@@ -447,6 +447,9 @@ function router(routes, req, res, cb) {
       // the group the person would belong to. This value can be used
       // to implement our authorization.
 
+      // parse the body into a usable JS object
+      var bodyParams = JSON.parse(event.body) || {}
+
       var ct = event.headers["content-type"] || event.headers["Content-Type"]
       // get all the relevant stuff (from event object) into the
       // "params" object... include everything required for a
@@ -463,7 +466,7 @@ function router(routes, req, res, cb) {
         statusCode: 200,
         isBase64Encoded: false,
         body: event.body,
-        ...JSON.parse(event.body)
+        ...bodyParams
       }
     }
 

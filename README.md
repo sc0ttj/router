@@ -266,9 +266,12 @@ exports.main = (event, context, callback) => {
 
 In Lambdas, `router` works out which route to run from the `event.path` property (not HTTP `req` objects).
 
-The `params` object will include the incoming GET, POST (etc) data, taken from the `event` object. 
+The `params` object will include the incoming GET, POST (etc) data, taken from the `event` object:
 
-To make life easier, `params` will also contain everything to be a valid response object - so it can be passed to `callback()`.
+- The event body is added "as is" to `params` as `params.body`.
+- The contents of `event.body` are parsed into a JS object, and its properties added into `params`.
+
+To make life easier, `params` will also contain everything needed for a valid response object - so it can be passed straight to `callback()`, such as headers as status code.
 
 There is currently no middleware support for Lambdas. If you need a more advanced Lambda router, see [middy](https://github.com/middyjs/middy).
 
