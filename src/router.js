@@ -151,6 +151,7 @@ function router(routes, req, res, cb) {
         return optional ? match : "([^/]+)"
       })
       .replace(splatParam, "(.*?)")
+      .replace("*", "(.*?)") // fix for routes that end in *
 
     return new RegExp("^" + route + "$")
     //return new RegExp('^' + route);
@@ -191,7 +192,9 @@ function router(routes, req, res, cb) {
       url ||
       req.url ||
       window.location.href.toString().split(window.location.host)[1]
-    var routeFromUrl = urlPath.split("#")[1]
+
+    routeFromUrl = urlPath.split("#")[1]
+
     Object.keys(routes).forEach(routePattern => {
       if (!urlPathMatchesRoutePattern(routeFromUrl, routePattern)) return
       pattern = routePattern

@@ -52,6 +52,10 @@ http
           //   - ends the response
           res.status(200)
           res.send(params)
+        },
+        // any other route
+        "*": params => {
+          res.send("<h1>API Docs:</h1>")
         }
       },
       // for servers, you must pass in 'res' and 'req' after the routes object

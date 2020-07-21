@@ -141,8 +141,11 @@ http.createServer((req, res) => {
         // end response
         res.status(200)
         res.send(params)
+      },
+      // any other route
+      "*": params => {
+        res.send("<h1>API Docs:</h1>")
       }
-      
     },
     // for servers, you must pass in 'req' and 'res', after the routes object above
     req, res
