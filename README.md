@@ -246,7 +246,7 @@ exports.main = (event, context, callback) => {
 
       "/user/:userId": params => {
         // do stuff here
-        if (params.userId) { ... }
+        var resp = { ... }
         callback(null, resp)
       }
     },
@@ -263,8 +263,9 @@ In Lambdas, `router` works out which route to run from the `event.path` property
 
 To make life easier inside your routes:
 
-1. If `event.body` is URL-encoded or JSON-encoded, it'll be parsed into a JS object, and its properties added into `params`.
-2. `params` will also has everything needed for a valid response object, so it can be passed straight to `callback()`.
+1. If `event.body` is URL-encoded or JSON-encoded, it'll be parsed into a JavaScript object.
+2. If `event.body` was parsed into a JavaScript object, its properties will be added into `params`.
+3. The `params` object should have everything needed for a valid response object, so it can be passed straight to `callback()` (or returned, if running in an `async` Lambda).
 
 ### Using Lambda "middleware"
 

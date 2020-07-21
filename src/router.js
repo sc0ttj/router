@@ -466,11 +466,14 @@ function router(routes, req, res, cb) {
       if (ct === "application/json") {
         try {
           bodyParams = JSON.parse(event.body)
+          event.body = bodyParams
         } catch (e) {
+          bodyParams = event.body
           console.error(e.message)
         }
       } else if (ct === "application/x-www-form-urlencoded") {
         bodyParams = getParamsFromUrlPath(event.body)
+        event.body = bodyParams
       }
 
       // get all the relevant stuff (from event object) into the
