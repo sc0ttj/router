@@ -25,10 +25,16 @@ http
     //
     router(
       {
+        "/": params => {
+          console.log("top level /", params)
+          // set header to "200, text/html", set content, end the response
+          res.send("<p>/</p>")
+        },
+
         "/home": params => {
           console.log("home!", params)
           // set header to "200, text/html", set content, end the response
-          res.send("<p>some string</p>")
+          res.send("<p>HOMEPAGE</p>")
         },
 
         "/user/:userId": params => {

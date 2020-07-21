@@ -281,6 +281,9 @@ function router(routes, req, res, cb) {
   var wrappedMiddleware = []
   wrapMiddleware()
 
+  // get routePattern from URL
+  var routePattern = router.getRoutePatternFromUrlPath(urlPath)
+
   // on router init, load the correct route,
   // matched against the current URL path (or req.path, event.path, etc)
   Object.keys(routes).forEach(routePattern => {
@@ -303,7 +306,82 @@ function router(routes, req, res, cb) {
     if (isNodeServer) {
       // Get all of req.body before we do our routing:
       var chunks = []
-      var bytesReceived
+
+      // Lets setup express.js compatible response helper functions. Do it
+      // before we call our middleware, for better express.js support
+      res.status = function(status) {
+        res.statusCode = status
+        return res
+      }
+
+      // res.send() - an express-like method that simplifies HTTP responses.
+      // It is just a wrapper around res.status(), res.writeHead(),
+      // res.write() and res.end().
+      res.send = function(content) {
+        //   - set appropriate header status to 200 (if res.status not used)
+        //   - set appropriate content type:
+        //     * text/html                 - if given a string
+        //     * application/json          - if given an object, array or JSON
+        //     * application/octet-stream  - if given a Buffer
+        var contentType = "text/html"
+        var c = typeof content
+        if (c === "object" || c === "array" || c === "number") {
+          contentType = "application/json"
+          //   * auto pretty prints JSON output
+          content = JSON.stringify(content, null, 2)
+        } else if (c === "buffer") {
+          contentType = "application/octet-stream"
+          res.setHeader("Content-Length", Buffer.byteLength(c))
+        }
+        // write the header
+        res.writeHead(res.statusCode, { "Content-Type": contentType })
+        // the content to return
+        res.write(content)
+        // end the response
+        res.end()
+        // make res chainable
+        return res
+      }
+
+      // add a mock res.json(),
+      // for (slightly) better express middleware compatibility
+      res.json = res.send
+
+      // jsonp - returns user content wrapped in a callback
+      res.jsonp = function(content) {
+        res.writeHead(res.statusCode, {
+          "Content-Type": "text/javascript"
+        })
+
+        // replace chars not allowed in JavaScript that are in JSON
+        content = content
+          .replace(/\u2028/g, "\\u2028")
+          .replace(/\u2029/g, "\\u2029")
+
+        // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
+        // the typeof check is just to reduce client error noise
+        content =
+          "/**/ typeof " +
+          callback +
+          " === 'function' && " +
+          callback +
+          "(" +
+          content +
+          ");"
+
+        res.write(content)
+        res.end()
+        return res
+      }
+
+      // add error logs
+      req.on("error", function(err) {
+        console.error(err)
+      })
+      res.on("error", function(err) {
+        console.error(err)
+      })
+
       // Add the body data to "chunks", each time we receive it.
       // More info:
       // - https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/
@@ -311,81 +389,9 @@ function router(routes, req, res, cb) {
       req
         .on("data", function(chunk) {
           chunks.push(chunk)
-          bytesReceived += chunk.length
         })
         .on("end", function() {
-          // add error logs
-          res.on("error", function(err) {
-            console.error(err)
-          })
-
-          // Lets setup express.js compatible response helper functions. Do it
-          // before we call our middleware, for better express.js support
-          res.status = function(status) {
-            res.statusCode = status
-            return res
-          }
-
-          // res.send() - an express-like method that simplifies HTTP responses.
-          // It is just a wrapper around res.status(), res.writeHead(),
-          // res.write() and res.end().
-          res.send = function(content) {
-            //   - set appropriate header status to 200 (if res.status not used)
-            //   - set appropriate content type:
-            //     * text/html                 - if given a string
-            //     * application/json          - if given an object, array or JSON
-            //     * application/octet-stream  - if given a Buffer
-            var contentType = "text/html"
-            var c = typeof content
-            if (c === "object" || c === "array" || c === "number") {
-              contentType = "application/json"
-              res.setHeader("Content-Length", c.length)
-              //   * auto pretty prints JSON output
-              content = JSON.stringify(content, null, 2)
-            } else if (c === "buffer") {
-              contentType = "application/octet-stream"
-              res.setHeader("Content-Length", Buffer.byteLength(c))
-            }
-            // write the header
-            res.writeHead(res.statusCode, { "Content-Type": contentType })
-            // the content to return
-            res.write(content)
-            // end the response
-            res.end()
-            // make res chainable
-            return res
-          }
-
-          // add a mock res.json(),
-          // for (slightly) better express middleware compatibility
-          res.json = res.send
-
-          // jsonp - returns user content wrapped in a callback
-          res.jsonp = function(content) {
-            res.writeHead(res.statusCode, {
-              "Content-Type": "text/javascript"
-            })
-
-            // replace chars not allowed in JavaScript that are in JSON
-            content = content
-              .replace(/\u2028/g, "\\u2028")
-              .replace(/\u2029/g, "\\u2029")
-
-            // the /**/ is a specific security mitigation for "Rosetta Flash JSONP abuse"
-            // the typeof check is just to reduce client error noise
-            content =
-              "/**/ typeof " +
-              callback +
-              " === 'function' && " +
-              callback +
-              "(" +
-              content +
-              ");"
-
-            res.write(content)
-            res.end()
-            return res
-          }
+          console.log("HTTP request received:", routePattern, req.url)
 
           // done adding express methods... lets set a default status code
           res.statusCode = 200
@@ -439,6 +445,9 @@ function router(routes, req, res, cb) {
               ...req.body
             }
           }
+
+          // load the function for this route, passing in all params
+          routes[routePattern](params)
         })
     }
 
@@ -497,13 +506,12 @@ function router(routes, req, res, cb) {
         ...bodyParams
       }
     }
-
-    // for current route: load the function for this route, passing in all params
-    return routes[routePattern](params)
   })
 
-  // on page load/init: load the function for this route, passing in all params
-  return routes[routePattern](params)
+  if (!isNodeServer) {
+    // load the function for this route, passing in all params
+    routes[routePattern](params)
+  }
 }
 
 router.middleware = []
