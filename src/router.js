@@ -465,8 +465,11 @@ function router(routes, req, res, cb) {
       var ct = event.headers["content-type"] || event.headers["Content-Type"]
       if (ct === "application/json") {
         try {
-          bodyParams = JSON.parse(event.body)
-          event.body = bodyParams
+          var bodyParams = event.isBase64Encoded
+            ? Buffer.from(event.body, "base64").toString()
+            : event.body
+
+          event.body = JSON.parse(bodyParams)
         } catch (e) {
           bodyParams = event.body
           console.error(e.message)
@@ -490,7 +493,7 @@ function router(routes, req, res, cb) {
           "Content-Type": "application/json"
         },
         statusCode: 200,
-        isBase64Encoded: false,
+        isBase64Encoded: event.isBase64Encoded,
         ...bodyParams
       }
     }
