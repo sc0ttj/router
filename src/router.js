@@ -34,7 +34,6 @@
 
 function router(routes, req, res, cb) {
   var urlPath
-
   var matchedRoute = false
 
   var isBrowser =
@@ -53,6 +52,7 @@ function router(routes, req, res, cb) {
     false
   )
 
+  // get the urlPath (depends on env we're running in)
   if (isBrowser) {
     // Get current URL path  - everything after the domain name
     urlPath = window.location.href.toString().split(window.location.host)[1]
@@ -71,6 +71,7 @@ function router(routes, req, res, cb) {
     if (typeof event !== "undefined" && event.path) urlPath = "#" + event.path
   }
 
+  // getting the path, without tthe leading "#" char
   var routeFromUrl = urlPath.split("#")[1]
 
   // Parse URLs (Browser) ...adapted from https://vanillajstoolkit.com/helpers/router/
@@ -394,8 +395,6 @@ function router(routes, req, res, cb) {
           chunks.push(chunk)
         })
         .on("end", function() {
-          console.log("HTTP request received:", routePattern, req.url)
-
           // done adding express methods... lets set a default status code
           res.statusCode = 200
 
