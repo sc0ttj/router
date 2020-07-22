@@ -239,7 +239,7 @@ Here's an example of using `router` in an AWS Lambda:
 'use strict';
 var router = require("@scottjarvis/router")
 
-exports.main = (event, context, callback) => {
+exports.handler = (event, context, callback) => {
   router(
     {
       "/ping": params => {
