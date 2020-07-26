@@ -258,7 +258,7 @@ exports.handler = (event, context, callback) => {
     context,
     callback
   )
-})
+}
 
 ```
 
