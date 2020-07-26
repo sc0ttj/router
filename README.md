@@ -305,7 +305,7 @@ If you building a NodeJS program, you might want an easy way to parse the comman
 If so, `router` can help - it auto maps command-line arguments to the `params` object received by your routes:
 
 ```
-node some_script.js /profile/99 --foo=bar
+node some_script.js --foo=bar --verbose --dir=/home
 ```
 
 will be matched in `some_script.js` by using something like:
@@ -319,9 +319,10 @@ router({
   // 'params' will contain all command-line arguments
   // that were passed to this script
 
-  "/profile/:id": params => {
-    console.log(params) // { id: 99, foo: "bar" }
+  "*": params => {
+    console.log(params) // { foo: "bar", verbose: true, dir: "/home" }
   }
+
 })
 
 ```

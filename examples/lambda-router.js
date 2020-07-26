@@ -1,6 +1,6 @@
 // Router usage: AWS Lambda
 
-'use strict';
+"use strict"
 var router = require("@scottjarvis/router")
 
 exports.handler = (event, context, callback) => {
@@ -23,4 +23,4 @@ exports.handler = (event, context, callback) => {
     context,
     callback
   )
-})
+}

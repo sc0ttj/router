@@ -34,6 +34,7 @@
 
 function router(routes, req, res, cb) {
   var urlPath
+  var params
   var matchedRoute = false
 
   var isBrowser =
@@ -179,7 +180,7 @@ function router(routes, req, res, cb) {
       .slice(1)
 
     // map the keys from the route pattern to the values from the URL
-    params = {}
+    var params = {}
     routeParams.map((key, i) => {
       params[key.replace(":", "")] = urlParamsArr[i + i + 1]
     })
@@ -217,7 +218,7 @@ function router(routes, req, res, cb) {
     // - query strings override http requests
     // - http requests override cli arguments
     // - cli arguments override default settings, defined in script
-    var params = {
+    params = {
       ...getArgs(),
       ...getParamsFromUrlPath(urlPath),
       ...routeToParams(routePattern, "#" + url)
@@ -301,7 +302,7 @@ function router(routes, req, res, cb) {
     // - query strings override http requests
     // - http requests override cli arguments
     // - cli arguments override default settings, defined in script
-    var params = {
+    params = {
       ...getArgs(),
       ...getParamsFromUrlPath(urlPath),
       ...routeToParams(routePattern, urlPath)

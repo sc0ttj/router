@@ -17,7 +17,7 @@ if (typeof process !== "undefined" && process.argv) {
   router({
     // 'params' will contain all command-line arguments
     // that were passed to this script
-    "/profile/:id": params => {
+    "*": params => {
       console.log(params)
     }
   })
