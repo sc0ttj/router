@@ -26,7 +26,7 @@
 - Works **server-side**, in Node:
   - as a router for an HTTP server (express.js like API, also supports "middleware")
   - as a router in an AWS Lambda (routing of the `event` data passed into Lambda)
-  - as a router for a command-line tool (accepts first arg as the URL/path)
+- Works **in the terminal** as an args parser for command-line programs
 
 ## Basic syntax example
 
