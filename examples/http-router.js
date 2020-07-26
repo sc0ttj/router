@@ -9,7 +9,10 @@
 //
 //   router() adds:
 //
-//   res.send()  : A convenience wrapper around res.write() and res.end(), called once (like express).
+//   res.send()   : A convenience wrapper around res.write() and res.end(), called once (like express).
+//   res.json()   : Like res.send() but always tries to return content-type of application/json.
+//   res.jsonp()  : Returns the JSON wrapped in "callback()"
+//   res.status() : Sets the header status code (200, 401, 404, etc)
 //
 // See http://zetcode.com/javascript/http/
 
@@ -22,10 +25,16 @@ http
     //
     router(
       {
+        "/": params => {
+          console.log("top level /", params)
+          // set header to "200, text/html", set content, end the response
+          res.send("<p>/</p>")
+        },
+
         "/home": params => {
           console.log("home!", params)
           // set header to "200, text/html", set content, end the response
-          res.send("<p>some string</p>")
+          res.send("<p>HOMEPAGE</p>")
         },
 
         "/user/:userId": params => {
@@ -43,11 +52,15 @@ http
           //   - ends the response
           res.status(200)
           res.send(params)
+        },
+        // any other route
+        "*": params => {
+          res.send("<h1>API Docs:</h1>")
         }
       },
       // for servers, you must pass in 'res' and 'req' after the routes object
-      res,
-      req
+      req,
+      res
     )
   })
   .listen("8181")
@@ -62,9 +75,10 @@ http
 // and is executed on each route match
 //
 // Define some middleware as a function
-var getRequestTime = function(res, req) {
+var getRequestTime = function(req, res, next) {
   req.time = Date.now()
   console.log("middleware: added req.time: ", req.time)
+  next()
 }
 // and just pass the middleware function to router.use()
 router.use(getRequestTime)
@@ -78,28 +92,21 @@ function configurableMiddleware(opts) {
   // do middleware config stuff here
 
   // then return the "middleware" function
-  return function theActualMiddleware(res, req) {
+  return function theActualMiddleware(req, res, next) {
     params = { ...params, ...opts }
     console.log("middleware: added to params: ", params)
+    next()
   }
 }
 
-// pass the middleware function to router.use(), with your options
+// pass the configurable middleware function to router.use(), with your options
 router.use(configurableMiddleware({ foo: "bar" }))
 
-//
-// -------------  @Todo Ad-hoc routing  examples   --------------
-//
+// you can also pass an array of middlewares
+router.use([getRequestTime, configurableMiddleware({ foo: "bar" })])
 
-// OPTIONAL HTTP Router usage: Ad-hoc routing
-//
-// - like `journey`, `director` or `express`.
-// - pass a path as a string to route.get()
-// - the data from the path is available to the given function, in `params`
-//router.get("/foo/1", someFunc) // NOT READY!
+// or enable middleware for a specific route pattern
+router.use("/home", getRequestTime)
 
-// where..
-var someFunc = params => {
-  // params contains data from the path passed to router.get(),
-  // returns some HTML, JSON, etc
-}
+// or any array of middlewares to run on a specific route
+router.use("/home", [getRequestTime, configurableMiddleware({ foo: "bar" })])
