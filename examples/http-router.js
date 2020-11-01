@@ -41,6 +41,7 @@ http
           // * router added req.params to the params received here
           // * router provides res.send() and res.status()
           // * res.status() : set the header status (optional)
+          res.status(200)
           // * res.send() :
           //   - sets header status to 200 (if res.status not used)
           //   - sets appropriate content type:
@@ -50,17 +51,15 @@ http
           //   - sanitises the content:
           //     * auto pretty prints JSON output
           //   - ends the response
-          res.status(200)
           res.send(params)
         },
         // any other route
         "*": params => {
-          res.send("<h1>API Docs:</h1>")
+          res.send("<h1>API Docs:</h1><p>Do /home or /user/1, /user/2, etc... That's it.</p>")
         }
       },
       // for servers, you must pass in 'res' and 'req' after the routes object
-      req,
-      res
+      req, res
     )
   })
   .listen("8181")
@@ -84,6 +83,9 @@ var getRequestTime = function(req, res, next) {
 router.use(getRequestTime)
 
 //
+// --------------   Configurable middleware examples   --------------------
+//
+
 // OPTIONAL HTTP Router usage: Configurable middleware
 //
 // wrap your middleware in a function that takes
@@ -101,6 +103,10 @@ function configurableMiddleware(opts) {
 
 // pass the configurable middleware function to router.use(), with your options
 router.use(configurableMiddleware({ foo: "bar" }))
+
+//
+// --------------   More  middleware examples   --------------------
+//
 
 // you can also pass an array of middlewares
 router.use([getRequestTime, configurableMiddleware({ foo: "bar" })])
