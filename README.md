@@ -37,7 +37,7 @@
 
   router({
 
-    '/home':                  (params) => { ... }, 
+    '/home':                  (params) => { ... },
 
     '/profile/:id':           (params) => { ... },
 
@@ -46,6 +46,14 @@
   });
 
 ```
+
+The supported route pattern types are:
+
+* static (`/users`)
+* named parameters (`/users/:id`)
+* nested parameters (`/users/:id/books/:title`)
+* optional parameters (`/posts(/:slug)`)
+* any match / wildcards (`/users/*`)
 
 ## Installation
 
@@ -73,7 +81,7 @@ router = require('@scottjarvis/router');
 
 ```
 
-## Usage in browsers: as a client-side router 
+## Usage in browsers: as a client-side router
 
 For routing frontend JS stuff like "single page applications", you'll need to trigger the router when the URL changes, or a link is clicked.
 
@@ -128,16 +136,16 @@ http.createServer((req, res) => {
     {
       "/home": params => {
         console.log("home!", params)
-        // set header status to "200", 
+        // set header status to "200",
         // set content-type to "text/html",
         // set content, end response
         res.send("<p>some string</p>")
       },
       "/user/:userId": params => {
         console.log("serving JSON!", params)
-        // set header to "200" manually 
+        // set header to "200" manually
         // set content-type to "application/json",
-        // set content (prettified JSON) 
+        // set content (prettified JSON)
         // end response
         res.status(200)
         res.send(params)
@@ -164,8 +172,8 @@ There is a `res.send()` method, which makes life easier for you:
   * `text/html`                 - if given a string
   * `application/json`          - if given an object, array or JSON
   * `application/octet-stream`  - if given a Buffer
-- pretty prints JSON output 
-- calls `res.end()` for you 
+- pretty prints JSON output
+- calls `res.end()` for you
 
 The `res.json()` method is similar to above, but sends the Content-Type `application/json`.
 
@@ -340,7 +348,7 @@ Rebuild the bundles in `dist/` using this command: `npm run build`
 ### Alternative routers
 
 - [director](https://github.com/flatiron/director) - a fairly small, isomorphic URL router for JavaScript
-- [hasher](https://github.com/narirou/hasher) - Tiny hashchange router inspired by express.js & page.js 
+- [hasher](https://github.com/narirou/hasher) - Tiny hashchange router inspired by express.js & page.js
 - [routie](https://github.com/jgallen23/routie) - a tiny javascript hash router
 - [trouter](https://github.com/lukeed/trouter/) - a fast, small-but-mighty, familiar router
 - [RouterRouter](https://github.com/jgarber623/RouterRouter) - a tiny JS router, extracted from Backbone's Router
@@ -370,7 +378,7 @@ This should improve compatibility with other express.js middleware that is loade
 
 ### Basic auth middleware
 
-See 
+See
 
 - https://github.com/jshttp/basic-auth
 - https://github.com/arkerone/api-key-auth
