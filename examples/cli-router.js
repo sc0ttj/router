@@ -9,7 +9,7 @@
 //
 // Example File "myprogram.js":
 
-var router = require("../src/router.js")
+var router = require("../dist/router.js")
 
 if (typeof process !== "undefined" && process.argv) {
   // make sure we're running in Node

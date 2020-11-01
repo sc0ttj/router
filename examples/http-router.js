@@ -17,7 +17,7 @@
 // See http://zetcode.com/javascript/http/
 
 var http = require("http")
-var router = require("../src/router.js")
+var router = require("../dist/router.js")
 
 // start the server on given port, then run cb()
 http

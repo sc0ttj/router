@@ -48,15 +48,24 @@ function router(routes, req, res, cb) {
   var isNodeServer =
     isNode && typeof req !== "undefined" && typeof res !== "undefined"
 
-  var isLambda = !!(
+  var isLambda = isNode && !!(
     (process.env.LAMBDA_TASK_ROOT && process.env.AWS_EXECUTION_ENV) ||
     false
   )
 
+  var getUrlPath = function() {
+    if (!!window.location.host) {
+      urlPath = window.location.href.toString().split(window.location.host)[1]
+    } else {
+      urlPath = window.location.href;
+    }
+    return urlPath;
+  }
+
   // get the urlPath (depends on env we're running in)
   if (isBrowser) {
     // Get current URL path  - everything after the domain name
-    urlPath = window.location.href.toString().split(window.location.host)[1]
+    urlPath = getUrlPath();
   } else if (isNodeServer) {
     // get the URL requested in the HTTP request
     if (typeof req != "undefined" && req.url) urlPath = "#" + req.url
@@ -75,28 +84,41 @@ function router(routes, req, res, cb) {
   // getting the path, without tthe leading "#" char
   var routeFromUrl = urlPath.split("#")[1]
 
+  var objFromQs = function (str) {
+    return str.split('&')
+        .map((value) => value.split('=', 2))
+        .reduce((obj, value) => {
+          obj[value[0]] = decodeURIComponent(value[1]);
+          return obj;
+        }, {});
+  }
+
   // Parse URLs (Browser) ...adapted from https://vanillajstoolkit.com/helpers/router/
   var getParamsFromUrlPath = function(url) {
     var params = {}
     var parser
     var query
+    var queryAsObj
     if (isBrowser) {
       parser = document.createElement("a")
       parser.href = url
       query = parser.search.substring(1)
+      queryAsObj = objFromQs(parser.search.substring(1))
+      if (parser.search.substring(1)) params = { ...queryAsObj, ...params }
     }
     if (isNodeServer) {
       parser = {}
       parser.href = req.url
       query = parser.href.substring(1)
     }
-    var vars = query + "&".replace("&&", "&").split("&")
 
+    var vars = query + "&".replace("&&", "&").split("&")
     for (var i = 0; i < vars.length; i++) {
       var pair = vars[i].split("=")
       if (pair[1] == undefined) continue
       params[pair[0]] = decodeURIComponent(pair[1])
     }
+
     return params
   }
 
@@ -162,7 +184,11 @@ function router(routes, req, res, cb) {
   // Checks if the given URL path matches the given route pattern,
   // using regex produced by routeToRegExp
   var urlPathMatchesRoutePattern = function(path, routePattern) {
-    return !!path.match(routeToRegExp(routePattern))
+    if (path) {
+      return !!path.match(routeToRegExp(routePattern))
+    } else {
+      return false;
+    }
   }
 
   // Maps the keys from the route pattern to values from url,
@@ -193,7 +219,7 @@ function router(routes, req, res, cb) {
     var urlPath =
       url ||
       req.url ||
-      window.location.href.toString().split(window.location.host)[1]
+      getUrlPath()
 
     routeFromUrl = urlPath.split("#")[1]
 
@@ -402,7 +428,7 @@ function router(routes, req, res, cb) {
           // now call the first middleware. It will call 2nd one, etc
           // it will have access to the parsed req.body, and res.send() etc
           // ...we call it before we modify any req/res properties
-          wrappedMiddleware[0]
+          wrappedMiddleware[0]()
 
           // if the user did not use body-parser style middleware, we can
           // do some basic parsing for them anyway:
@@ -511,7 +537,7 @@ function router(routes, req, res, cb) {
     }
   })
 
-  if (!isNodeServer) {
+  if (!isNodeServer && routePattern && typeof routes[routePattern] == "function") {
     // load the function for this route, passing in all params
     routes[routePattern](params)
   }
@@ -553,4 +579,4 @@ router.use = function(one, two) {
 
 // ------------------------------------------------------------------------
 
-module.exports = router
+export default router

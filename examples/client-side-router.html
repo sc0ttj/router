@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
-<head>Router example</head>
+<head>
+  <meta charset="UTF-8">
+  <title>Router example</title>
+</head>
 <body>
 
 <p>Try and replace me when the router runs!</p>
@@ -9,14 +12,22 @@
 <script>
 
   router({
-    "/home": () => console.log("HOME PAGE"),
 
-    "/profile/:id/tab/:tabId": params =>
-      console.log(`Profile id: ${params.id}`),
+    "/home": params => {
+        document.body.innerHTML = "HOMEPAGE";
+        console.log("HOME PAGE", params)
+    },
 
-    "/profile/:id": params => {
-      console.log("PROFILE PAGE", params)
+    "/user/:userId/tab/:tabId": params => {
+        document.body.innerHTML = `Profile id: ${params.userId}, Tab: ${params.tabId}`;
+        console.log(`Profile userId: ${params.userId}`)
+    },
+
+    "/user/:userId": params => {
+        document.body.innerHTML = "PROFILE" + `<br><pre>${JSON.stringify(params)}</pre>`;
+        console.log("PROFILE PAGE", params)
     }
+
   })
 
   // How to bind the router to URL changes in the browser:
