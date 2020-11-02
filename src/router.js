@@ -53,6 +53,7 @@ function router(routes, req, res, cb) {
     false
   )
 
+  // get url path from URL, without the domain if possible
   var getUrlPath = function() {
     if (!!window.location.host) {
       urlPath = window.location.href.toString().split(window.location.host)[1]
@@ -62,28 +63,7 @@ function router(routes, req, res, cb) {
     return urlPath;
   }
 
-  // get the urlPath (depends on env we're running in)
-  if (isBrowser) {
-    // Get current URL path  - everything after the domain name
-    urlPath = getUrlPath();
-  } else if (isNodeServer) {
-    // get the URL requested in the HTTP request
-    if (typeof req != "undefined" && req.url) urlPath = "#" + req.url
-  } else if (isNode && !isNodeServer) {
-    // get the URL from the first argument passed to this script
-    if (process && process.argv) urlPath = "#" + process.argv[2]
-  } else if (isLambda) {
-    // grab the lambda params (event, context, callback) from the router params
-    var event = req
-    var context = res
-    var callback = cb
-    // get the URL requested in the HTTP request
-    if (typeof event !== "undefined" && event.path) urlPath = "#" + event.path
-  }
-
-  // getting the path, without tthe leading "#" char
-  var routeFromUrl = urlPath.split("#")[1]
-
+  // take query string, return it as an object
   var objFromQs = function (str) {
     return str.split('&')
         .map((value) => value.split('=', 2))
@@ -309,8 +289,31 @@ function router(routes, req, res, cb) {
       wrappedMiddleware.push(wrappedFn)
     })
   }
+
   var wrappedMiddleware = []
   wrapMiddleware()
+
+  // get the urlPath (depends on env we're running in)
+  if (isBrowser) {
+    // Get current URL path  - everything after the domain name
+    urlPath = getUrlPath();
+  } else if (isNodeServer) {
+    // get the URL requested in the HTTP request
+    if (typeof req != "undefined" && req.url) urlPath = "#" + req.url
+  } else if (isNode && !isNodeServer) {
+    // get the URL from the first argument passed to this script
+    if (process && process.argv) urlPath = "#" + process.argv[2]
+  } else if (isLambda) {
+    // grab the lambda params (event, context, callback) from the router params
+    var event = req
+    var context = res
+    var callback = cb
+    // get the URL requested in the HTTP request
+    if (typeof event !== "undefined" && event.path) urlPath = "#" + event.path
+  }
+
+  // getting the path, without tthe leading "#" char
+  var routeFromUrl = urlPath.split("#")[1]
 
   // get routePattern from URL
   var routePattern = router.getRoutePatternFromUrlPath(urlPath)
@@ -496,7 +499,7 @@ function router(routes, req, res, cb) {
       // to implement our authorization.
 
       // now call the first middleware. It will call 2nd one, etc
-      wrappedMiddleware[0]
+      wrappedMiddleware[0]()
 
       // parse the body into a usable JS object
       var bodyParams = {}

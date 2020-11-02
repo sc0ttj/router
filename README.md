@@ -19,7 +19,7 @@
 ## Features
 
 - Easy setup, zero dependencies
-- Only 1.7kb minified and gzipped
+- Only 2kb minified and gzipped
 - Simple syntax and usage
 - Works **client-side**, in browsers:
   - as a router for single page applications (SPAs)
