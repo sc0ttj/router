@@ -38,7 +38,7 @@
 	],
 	"dependencies": {},
 	"devDependencies": {
-		"microbundle": "^0.12.4"
+		"microbundle": "^0.15.1"
 	},
 	"bugs": {
 		"url": "https://github.com/sc0ttj/router/issues"
