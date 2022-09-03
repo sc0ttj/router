@@ -6,7 +6,7 @@
     <p align="center"><i>A simple isomorphic router</i><p>
 </p>
 
-[![npm version](https://badge.fury.io/js/%40scottjarvis%2Frouter.svg)](https://badge.fury.io/js/%40scottjarvis%2Frouter) [![Dependency Status](https://david-dm.org/sc0ttj/router.svg)](https://david-dm.org/sc0ttj/router) [![devDependencies Status](https://david-dm.org/sc0ttj/router/dev-status.svg)](https://david-dm.org/sc0ttj/router?type=dev) [![Node version](https://badgen.net/npm/node/@scottjarvis/router)](http://nodejs.org/download/) [![Build Status](https://travis-ci.org/sc0ttj/router.svg?branch=master)](https://travis-ci.org/sc0ttj/router) [![bundle size](https://badgen.net/bundlephobia/minzip/@scottjarvis/router?color=green&label=gzipped)](https://badgen.net/bundlephobia/minzip/@scottjarvis/router) [![Downloads](https://badgen.net/npm/dt/@scottjarvis/router)](https://badgen.net/npm/dt/@scottjarvis/router)
+[![npm version](https://badge.fury.io/js/%40scottjarvis%2Frouter.svg)](https://badge.fury.io/js/%40scottjarvis%2Frouter) [![Node version](https://badgen.net/npm/node/@scottjarvis/router)](http://nodejs.org/download/) [![Build Status](https://travis-ci.org/sc0ttj/router.svg?branch=master)](https://travis-ci.org/sc0ttj/router) [![bundle size](https://badgen.net/bundlephobia/minzip/@scottjarvis/router?color=green&label=gzipped)](https://badgen.net/bundlephobia/minzip/@scottjarvis/router) [![Downloads](https://badgen.net/npm/dt/@scottjarvis/router)](https://badgen.net/npm/dt/@scottjarvis/router)
 
 > Routing is the process of determining what code to run when a URL is requested.
 
