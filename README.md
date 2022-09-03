@@ -41,7 +41,7 @@
 
     '/profile/:id':           (params) => { ... },
 
-    '/profile/:id/user/:uId': (params) => { ... },
+    '/profile/:id/user/:uid': (params) => { ... },
 
   });
 
