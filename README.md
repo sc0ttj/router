@@ -371,6 +371,10 @@ Rebuild the bundles in `dist/` using this command: `npm run build`
 
 ## Further improvements
 
+## See [Issues](https://github.com/sc0ttj/router/issues)
+
+Some intended future improvements are at https://github.com/sc0ttj/router/issues
+
 ### "express-compat" middleware
 
 A middleware that adds the same properties and methods to `req` and `res` as express.js.
