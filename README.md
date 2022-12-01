@@ -371,7 +371,7 @@ Rebuild the bundles in `dist/` using this command: `npm run build`
 
 ## Further improvements
 
-## See [Issues](https://github.com/sc0ttj/router/issues)
+### See [Issues](https://github.com/sc0ttj/router/issues)
 
 Some intended future improvements are at https://github.com/sc0ttj/router/issues
 
