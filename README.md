@@ -358,7 +358,8 @@ Rebuild the bundles in `dist/` using this command: `npm run build`
 
 - [expressJS](https://expressjs.com/en/) - the most widely used JavaScript server, with routing "middleware"
 - [polka](https://github.com/lukeed/polka) - minimal, performant expressjs alternative (uses trouter)
-- [middy](https://github.com/middyjs/middy) - a popular router for AWS Lambda, uses a middleware-style API
+- [aws-lambda-router](https://github.com/spring-media/aws-lambda-router) - nice, simple AWS router, good feature set
+- [middy](https://github.com/middyjs/middy) - a popular but complex router for AWS Lambda, uses a middleware-style API
 
 ## Acknowledgements
 
